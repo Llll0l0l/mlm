@@ -7,4 +7,10 @@ will give audio and chat
 promodomo timer /personal timer / 25-5 / 50-10/ 90-15
 stopwatch 
 
-so our website tabs will be = 1) todo-list 2) lounge 3) promodomo 4)stopwatch 
+so our website tabs will be = 
+<ol>
+  <li>todo-list</li> 
+  <li>lounge</li> 
+  <li>pomodoro</li> 
+  <li>stopwatch </li>
+</ol>

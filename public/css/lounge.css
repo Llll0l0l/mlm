@@ -5,11 +5,29 @@
 
 body {
   margin: 0;
-  /* padding: 0; */
+  background-image: url("../img/bg/bg.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
-.bg-img {
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
+nav {
+  display: flex;
+  justify-content: center;
+  margin-top: 4rem;
+}
+
+ul {
+  display: flex;
+  justify-content: space-between;
+  width: 50%;
+  align-items: center;
+}
+
+ul li {
+  list-style: none;
+  color: white;
+  font-size: 1.3rem;
+  background-color: rgb(0, 0, 0, 0.3);
+  border-radius: 20px;
+  padding: 0.6rem 1.4rem;
 }

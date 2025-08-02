@@ -31,3 +31,8 @@ ul li {
   border-radius: 20px;
   padding: 0.6rem 1.4rem;
 }
+
+ul li:hover {
+  cursor: pointer;
+  background-color: rgb(255, 255, 255, 0.5);
+}

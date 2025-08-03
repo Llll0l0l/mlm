@@ -1,14 +1,98 @@
-<%- include("../partials/head", {title: "Lounge", cssFile:"css/lounge.css"}) %>
+<style>
+  .timer-todo-preview,
+  .ranking-team-preview {
+    display: flex;
+    gap: 5rem;
+    margin-bottom: 5rem;
+  }
 
-<body>
-  <header>
-    <nav>
-      <ul>
-        <li>Home</li>
-        <li>Todo</li>
-        <li>Pomodoro</li>
-        <li>Rank</li>
+  .timer-preview {
+    height: 350px;
+    width: 25%;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+  }
+  .todo-preview {
+    width: 75%;
+    height: 350px;
+    font-size: 2rem;
+    background-color: rgba(255, 255, 255, 0.849);
+    border-radius: 35px;
+  }
+
+  .ranking-preview {
+    width: 35%;
+    height: 350px;
+    border-radius: 35px;
+    font-size: 2rem;
+    padding: 1.5rem;
+    text-align: center;
+    background-color: rgb(255, 255, 255, 0.849);
+  }
+
+  .team-members {
+    width: 65%;
+    height: 350px;
+    text-align: center;
+    padding: 5rem;
+    background-color: rgba(255, 255, 255, 0.493);
+    border-radius: 35px;
+  }
+
+  .avatar {
+    border-radius: 50%;
+    width: 128px;
+  }
+  .avatar:nth-of-type(3) {
+    border: 7px red solid;
+    background-color: rgb(165, 101, 42);
+  }
+  .avatar:nth-of-type(2) {
+    background-color: #000000;
+    margin: -2rem;
+  }
+</style>
+
+<div class="section home active" data-section="home">
+  <div class="timer-todo-preview">
+    <!-- TODO: add timer preview -->
+    <div class="timer-preview">15:45</div>
+    <!-- TODO: add todo list preview -->
+    <div class="todo-preview">
+      <ul class="todo-list-preview">
+        <li>Create a github repository and add team members</li>
+        <li>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Aspernatur
+          beatae quibusdam.
+        </li>
+        <li>Add team members to collabarotors</li>
       </ul>
-    </nav>
-  </header>
-</body>
+    </div>
+  </div>
+  <div class="ranking-team-preview">
+    <!-- TODO: add ranking preview -->
+    <div class="ranking-preview">1st Place 👑</div>
+    <!-- TODO: show team members -->
+    <div class="team-members">
+      <img src="img/avatar/dog-avatar.svg" alt="dog avatar" class="avatar" />
+      <img
+        src="img/avatar/elephant-avatar.svg"
+        alt="elephant avatar"
+        class="avatar"
+      />
+      <img
+        src="img/avatar/penguin-avatar.svg"
+        alt="penguin avatar"
+        class="avatar"
+      />
+    </div>
+  </div>
+</div>

@@ -12,7 +12,7 @@ app.set("views", path.join(__dirname, "views"));
 
 // home route
 app.get("/", (req, res) => {
-  res.render("lounge/home");
+  res.render("lounge/lounge");
 });
 
 app.listen(process.env.APP_PORT || 3000, () => {

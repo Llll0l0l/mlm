@@ -1,0 +1,152 @@
+<style>
+  .todo {
+    text-align: center;
+  }
+
+  .todo h3 {
+    font-size: 2rem;
+  }
+
+  .todo-list {
+    display: flex;
+    margin-left: -4rem;
+    flex-direction: column;
+    text-align: left;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .add-task-btn {
+    background-color: rgb(43, 41, 41);
+    border: none;
+    border-radius: 10px;
+    padding: 0.5rem;
+  }
+
+  .fa-plus {
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  #new-task {
+    max-width: 380px;
+    height: 53px;
+    outline: none;
+    background: none;
+    border: none;
+    border-bottom: 1px black solid;
+    padding: 0 1rem;
+    font-size: 1.75rem;
+    margin-right: 2rem;
+  }
+
+  .fa-xmark {
+    margin: 0 1rem;
+  }
+
+  .task {
+    font-size: 1.75rem;
+    width: 400px;
+    height: 4rem;
+    padding: 1rem;
+    border: 1px black solid;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .task span {
+    max-width: 200px;
+    display: inline-flex;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .task input {
+    width: 1.4rem;
+    height: 1.4rem;
+    margin-right: 1rem;
+    border: 1px black solid;
+  }
+
+  .flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  button:hover,
+  i:hover {
+    cursor: pointer;
+  }
+
+  .link-copy {
+    display: flex;
+  }
+
+  .modal-backdrop {
+    opacity: 0.5;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(5px);
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: white;
+    z-index: 1;
+  }
+  .share-modal {
+    position: relative;
+    z-index: 2;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: white;
+    border: 1px rgb(73, 73, 73) solid;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 25px;
+    width: 600px;
+    margin: auto;
+    padding: 1rem;
+  }
+</style>
+
+<div class="section todo" data-section="todo">
+  <h3>
+    <span class="todo-title">Your To Do</span>
+    <i class="fa-solid fa-link share-link"></i>
+  </h3>
+  <div class="flex">
+    <div class="task-input">
+      <input
+        type="text"
+        name="new-task"
+        id="new-task"
+        placeholder="Add new task"
+      />
+      <button class="add-task-btn"><i class="fa-solid fa-plus"></i></button>
+    </div>
+    <ul class="todo-list"></ul>
+  </div>
+  <p class="remaining-todos hidden"></p>
+  <!-- TODO: perhaps we should add a quote -->
+  <!-- <p class="quote"></p> -->
+
+  <!-- TODO: share link modal -->
+  <div class="modal-backdrop hidden"></div>
+  <div class="share-modal hidden">
+    <h2 class="share-text">You can share the link with your study buddies.</h2>
+    <div class="link-copy">
+      <p class="link">https://test.test/eX4mP13</p>
+      <button>Copy</button>
+    </div>
+  </div>
+
+  <script src="js/lounge/todo.js"></script>
+</div>

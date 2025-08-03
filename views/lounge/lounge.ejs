@@ -1,0 +1,22 @@
+<%- include("../partials/head", {title: "Lounge", cssFile:"css/lounge.css"}) %>
+
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li class="tab tab-active" data-tab="home">Home</li>
+        <li class="tab" data-tab="todo">Todo</li>
+        <li class="tab" data-tab="pomodoro">Pomodoro</li>
+        <li class="tab" data-tab="stopwatch">Stopwatch</li>
+        <li class="tab" data-tab="ranking">Rank</li>
+      </ul>
+    </nav>
+  </header>
+  <main><%- include("./home") %></main>
+  <main><%- include("./todo") %></main>
+  <main><%- include("./pomodoro") %></main>
+  <main><%- include("./stopwatch") %></main>
+  <main><%- include("./ranks") %></main>
+
+  <script src="js/lounge/lounge.js"></script>
+</body>

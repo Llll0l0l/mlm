@@ -37,9 +37,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     sectionsArray.forEach((section) => {
       section.classList.remove("active");
+      // section.classList.add("hidden");
+      section.id = "hidden";
     });
     selectedTab.classList.add("tab-active");
     selectedSection.classList.add("active");
+    selectedSection.removeAttribute("id");
+
     localStorage.setItem("selectedTabData", selectedTab.dataset.tab);
   });
 });

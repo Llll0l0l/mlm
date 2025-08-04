@@ -1,6 +1,8 @@
 <style>
   .todo {
     text-align: center;
+    padding: 0;
+    margin: 0;
   }
 
   .todo h3 {
@@ -84,10 +86,6 @@
     cursor: pointer;
   }
 
-  .link-copy {
-    display: flex;
-  }
-
   .modal-backdrop {
     opacity: 0.5;
     width: 100vw;
@@ -102,24 +100,80 @@
     z-index: 1;
   }
   .share-modal {
-    position: relative;
+    position: fixed;
     z-index: 2;
     flex-direction: column;
     justify-content: flex-start;
+    align-items: stretch;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    border-radius: 1rem;
+    width: 90%;
+    max-width: 500px;
+    padding: 1.5rem;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+  }
+
+  .share-modal h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    text-align: center;
+  }
+
+  .share-modal .link-copy {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
-    background-color: white;
-    border: 1px rgb(73, 73, 73) solid;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    border-radius: 25px;
-    width: 600px;
-    margin: auto;
-    padding: 1rem;
+  }
+
+  .share-modal input.link {
+    flex: 1;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    outline: none;
+  }
+
+  .share-modal button.copy-link-btn {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .share-modal button.-link-btn:hover {
+    background-color: #0056b3;
+  }
+
+  @media (max-width: 500px) {
+    .share-modal .link-copy {
+      flex-direction: column;
+    }
+
+    .share-modal button.-link-btn {
+      width: 100%;
+    }
   }
 </style>
 
 <div class="section todo" data-section="todo">
   <h3>
-    <span class="todo-title">Your To Do</span>
+    <% if (title) { %>
+    <span><%= title %></span>
+    <% } else {%>
+    <span class="todo-title">Your To Do</span> <%}%>
     <i class="fa-solid fa-link share-link"></i>
   </h3>
   <div class="flex">
@@ -132,7 +186,11 @@
       />
       <button class="add-task-btn"><i class="fa-solid fa-plus"></i></button>
     </div>
-    <ul class="todo-list"></ul>
+    <ul class="todo-list">
+      <% if (tasks) { %> <% tasks.forEach(task => { %>
+      <li><%= task.title %></li>
+      <% }) %> <% } %>
+    </ul>
   </div>
   <p class="remaining-todos hidden"></p>
   <!-- TODO: perhaps we should add a quote -->
@@ -143,10 +201,24 @@
   <div class="share-modal hidden">
     <h2 class="share-text">You can share the link with your study buddies.</h2>
     <div class="link-copy">
-      <p class="link">https://test.test/eX4mP13</p>
-      <button>Copy</button>
+      <input class="link" value="<%=link%>" />
+      <button class="copy-link-btn" onclick="copyToClipboard()">Copy</button>
     </div>
   </div>
 
   <script src="js/lounge/todo.js"></script>
+  <script>
+    function copyToClipboard() {
+      const input = document.querySelector(".link");
+      navigator.clipboard
+        .writeText(input.value)
+        .then(() => {
+          input.style.color = "rgb(0,255,0)";
+        })
+        .catch((err) => {
+          input.style.color = "rgb(255,0,0)";
+          console.error("Failed to copy: ", err);
+        });
+    }
+  </script>
 </div>

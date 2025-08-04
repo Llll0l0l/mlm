@@ -1,1 +1,134 @@
-<div class="section stopwatch" data-section="stopwatch"></div>
+<style>
+  #stopwatch {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    width: 620px;
+    height: 320px;
+    padding: 2rem;
+    border-radius: 20px;
+    background: rgba(28, 43, 110, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255 255 255 / 0.18);
+    color: #fff;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    font-size: 5rem;
+    font-weight: bold;
+    margin: auto;
+    margin-top: 10rem;
+    user-select: none;
+  }
+
+  stopwatch-time {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .stopwatch-controls button {
+    background: rgba(255 255 255 / 0.25);
+    border: none;
+    color: #fff;
+    padding: 0.75rem 1.75rem;
+    margin: 0 0.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 150px;
+  }
+
+  .stopwatch-controls button:hover {
+    background: rgba(255 255 255 / 0.45);
+  }
+</style>
+
+<div class="section stopwatch" data-section="stopwatch">
+  <div id="stopwatch">
+    <div class="stopwatch-time" id="stopwatch-time">00:00:00</div>
+    <div class="stopwatch-controls">
+      <button id="start-stopwatch-btn">Start</button>
+      <button id="stop-stopwatch-btn" disabled>Stop</button>
+      <button id="reset-stopwatch-btn" disabled>Reset</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById("stopwatch-time");
+    const startStopwatchBtn = document.getElementById("start-stopwatch-btn");
+    const stopStopwatchBtn = document.getElementById("stop-stopwatch-btn");
+    const resetStopwatchBtn = document.getElementById("reset-stopwatch-btn");
+
+    let startTime = 0;
+    let elapsedTime = 0;
+    let timerInterval;
+
+    function timeToString(time) {
+      const diffInHrs = time / 3600000;
+      const hh = Math.floor(diffInHrs);
+
+      const diffInMin = (diffInHrs - hh) * 60;
+      const mm = Math.floor(diffInMin);
+
+      const diffInSec = (diffInMin - mm) * 60;
+      const ss = Math.floor(diffInSec);
+      const formattedSS = ss.toString().padStart(2, "0");
+      return `${hh.toString().padStart(2, "0")}:${mm
+        .toString()
+        .padStart(2, "0")}:${formattedSS}`;
+    }
+
+    function start() {
+      startTime = Date.now() - elapsedTime;
+      timerInterval = setInterval(() => {
+        elapsedTime = Date.now() - startTime;
+        display.textContent = timeToString(elapsedTime);
+      }, 1000);
+      startStopwatchBtn.disabled = true;
+      stopStopwatchBtn.disabled = false;
+      resetStopwatchBtn.disabled = false;
+    }
+
+    function stop() {
+      clearInterval(timerInterval);
+      startStopwatchBtn.disabled = false;
+      stopStopwatchBtn.disabled = true;
+    }
+
+    function reset() {
+      clearInterval(timerInterval);
+      sendSessionTime();
+      elapsedTime = 0;
+      display.textContent = "00:00:00";
+      startStopwatchBtn.disabled = false;
+      stopStopwatchBtn.disabled = true;
+      resetStopwatchBtn.disabled = true;
+    }
+
+    async function sendSessionTime() {
+      if (elapsedTime > 0) {
+        try {
+          await fetch("/api/add-time", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ seconds: Math.floor(elapsedTime / 1000) }),
+          });
+          elapsedTime = 0;
+        } catch (err) {
+          console.error("Failed to send session time:", err);
+        }
+      }
+    }
+
+    startStopwatchBtn.addEventListener("click", start);
+    stopStopwatchBtn.addEventListener("click", stop);
+    resetStopwatchBtn.addEventListener("click", reset);
+  </script>
+</div>

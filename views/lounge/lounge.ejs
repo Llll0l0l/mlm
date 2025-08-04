@@ -2,13 +2,22 @@
 
 <body>
   <header>
+    <div class="logo-wrapper">
+      <img
+        src="img/app/logo.png"
+        alt="logo"
+        class="logo"
+        width="128px"
+        height="128px"
+      />
+    </div>
     <nav>
       <ul>
         <li class="tab tab-active" data-tab="home">Home</li>
         <li class="tab" data-tab="todo">Todo</li>
         <li class="tab" data-tab="pomodoro">Pomodoro</li>
         <li class="tab" data-tab="stopwatch">Stopwatch</li>
-        <li class="tab" data-tab="ranking">Rank</li>
+        <!-- <li class="tab" data-tab="ranking">Rank</li> -->
       </ul>
     </nav>
   </header>
@@ -16,7 +25,25 @@
   <main><%- include("./todo") %></main>
   <main><%- include("./pomodoro") %></main>
   <main><%- include("./stopwatch") %></main>
-  <main><%- include("./ranks") %></main>
+  <!-- <main><%- include("./ranks") %></main> -->
 
   <script src="js/lounge/lounge.js"></script>
+  <script>
+    const logo = document.querySelector(".logo");
+
+    logo.addEventListener("mousemove", (e) => {
+      const { width, height, left, top } = logo.getBoundingClientRect();
+      const x = e.clientX - left;
+      const y = e.clientY - top;
+
+      const rotateX = ((y / height - 0.5) * 15).toFixed(2);
+      const rotateY = ((x / width - 0.5) * 15).toFixed(2);
+
+      logo.style.transform = `rotateX(${-rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+    });
+
+    logo.addEventListener("mouseleave", () => {
+      logo.style.transform = "rotateX(0deg) rotateY(0deg) scale(1)";
+    });
+  </script>
 </body>

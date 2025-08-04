@@ -1,0 +1,67 @@
+<%- include("../partials/head", {title: "Page does not exist", cssFile: ""}) %>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "Inter", sans-serif;
+    background-color: #f9fafb;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  .container {
+    text-align: center;
+    max-width: 500px;
+  }
+
+  .status {
+    font-size: 6rem;
+    font-weight: 700;
+    color: #2563eb;
+  }
+
+  .message {
+    font-size: 1.5rem;
+    margin: 1rem 0;
+  }
+
+  .description {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+
+  .home-btn {
+    display: inline-block;
+    background-color: #2563eb;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: background 0.3s;
+  }
+
+  .home-btn:hover {
+    background-color: #1d4ed8;
+  }
+</style>
+<body>
+  <div class="container">
+    <div class="status">404</div>
+    <div class="message">Page Not Found</div>
+    <div class="description">
+      Sorry, the page you're looking for doesn't exist or has been moved.
+    </div>
+    <a href="/" class="home-btn">Go Home</a>
+  </div>
+</body>

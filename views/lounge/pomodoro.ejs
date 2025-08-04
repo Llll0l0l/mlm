@@ -1,1 +1,215 @@
-<div class="section pomodoro" data-section="pomodoro"></div>
+<style>
+  #pomodoro {
+    width: 520px;
+    height: 420px;
+    background: rgba(190, 83, 83, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 30px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    border: 1px solid rgba(255 255 255 / 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: #e0f7fa; /* light cyan */
+    user-select: none;
+    transition: box-shadow 0.3s ease;
+    margin: auto;
+    margin-top: 10rem;
+  }
+
+  #pomodoro:hover {
+    box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.6);
+  }
+
+  .timer-text {
+    font-size: 6rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 10px rgba(224, 247, 250, 0.7);
+  }
+
+  .increase-decrease-btns {
+    display: flex;
+    gap: 30px;
+    font-size: 2.5rem;
+    cursor: pointer;
+    color: #b2ebf2; /* softer cyan */
+    user-select: none;
+    transition: color 0.3s ease;
+    margin-bottom: 1rem;
+  }
+
+  .increase-decrease-btns:hover i {
+    color: #80deea;
+  }
+
+  .pom-btns {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 2rem;
+  }
+
+  .pom-btns button {
+    background: rgba(255 255 255 / 0.25);
+    border: none;
+    padding: 15px 40px;
+    border-radius: 25px;
+    color: #00796b; /* deep teal */
+    font-size: 1.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 121, 107, 0.4);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .pom-btns button:hover {
+    background: #00796b;
+    color: #e0f7fa;
+    box-shadow: 0 6px 20px rgba(0, 121, 107, 0.7);
+  }
+
+  /* Responsive: smaller screens */
+  @media (max-width: 400px) {
+    #pomodoro {
+      width: 90vw;
+      height: auto;
+      padding: 20px 0;
+    }
+
+    .timer-text {
+      font-size: 4.5rem;
+    }
+
+    .increase-decrease-btns {
+      font-size: 2rem;
+      gap: 20px;
+    }
+
+    .pom-btns button {
+      padding: 12px 30px;
+      font-size: 1rem;
+    }
+  }
+</style>
+
+<div class="section pomodoro" data-section="pomodoro">
+  <div id="pomodoro">
+    <p class="timer-text">25:00</p>
+    <div
+      class="increase-decrease-btns"
+      role="group"
+      aria-label="Increase or decrease timer"
+    >
+      <i class="fa-solid fa-plus increase-pom" aria-hidden="true"></i>
+      <i class="fa-solid fa-minus" aria-hidden="true"></i>
+    </div>
+
+    <div class="pom-btns">
+      <button class="start" aria-label="Start timer">Start</button>
+      <button class="stop" aria-label="Stop timer">Stop</button>
+      <button class="reset" aria-label="Reset timer">Reset</button>
+    </div>
+  </div>
+  <script>
+    const startBtn = document.querySelector(".start");
+    const stopBtn = document.querySelector(".stop");
+    const resetBtn = document.querySelector(".reset");
+    const timerDisplay = document.querySelector(".timer-text");
+
+    let DEFAULT_MINUTES = 25;
+
+    let timeLeft = DEFAULT_MINUTES * 60; // seconds
+    let intervalId = null;
+    let totalSessionTime = 0; // tracks seconds
+
+    const plusBtn = document.querySelector(".increase-pom");
+    const minusBtn = document.querySelector(".fa-minus");
+
+    function adjustTime(changeInMinutes) {
+      if (intervalId) return; // Disable when running
+
+      const newTime = timeLeft + changeInMinutes * 60;
+      if (newTime >= 60 && newTime <= 5400) {
+        timeLeft = newTime;
+        DEFAULT_MINUTES = Math.floor(timeLeft / 60);
+        updateDisplay();
+      }
+    }
+
+    plusBtn.addEventListener("click", () => adjustTime(5));
+    minusBtn.addEventListener("click", () => adjustTime(-5));
+
+    // Load previous state
+    if (localStorage.getItem("pomodoroTimeLeft")) {
+      timeLeft = parseInt(localStorage.getItem("pomodoroTimeLeft"));
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      const minutes = Math.floor(timeLeft / 60)
+        .toString()
+        .padStart(2, "0");
+      const seconds = (timeLeft % 60).toString().padStart(2, "0");
+      timerDisplay.textContent = `${minutes}:${seconds}`;
+    }
+
+    function startTimer() {
+      if (intervalId) return;
+      intervalId = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+          totalSessionTime++;
+          localStorage.setItem("pomodoroTimeLeft", timeLeft);
+          updateDisplay();
+        } else {
+          stopTimer();
+          sendSessionTime();
+
+          alert("Pomodoro complete!");
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(intervalId);
+      intervalId = null;
+      sendSessionTime();
+    }
+
+    function resetTimer() {
+      stopTimer();
+      sendSessionTime();
+      timeLeft = DEFAULT_MINUTES * 60;
+      totalSessionTime = 0;
+      localStorage.removeItem("pomodoroTimeLeft");
+      updateDisplay();
+    }
+
+    async function sendSessionTime() {
+      if (totalSessionTime > 0) {
+        try {
+          await fetch("/api/add-time", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ seconds: totalSessionTime }),
+          });
+          totalSessionTime = 0;
+        } catch (err) {
+          console.error("Failed to send session time:", err);
+        }
+      }
+    }
+
+    startBtn.addEventListener("click", startTimer);
+    stopBtn.addEventListener("click", stopTimer);
+    resetBtn.addEventListener("click", resetTimer);
+
+    updateDisplay();
+  </script>
+</div>

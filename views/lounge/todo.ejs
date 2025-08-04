@@ -187,16 +187,15 @@
       <button class="add-task-btn"><i class="fa-solid fa-plus"></i></button>
     </div>
     <ul class="todo-list">
-      <% if (tasks) { %> <% tasks.forEach(task => { %>
-      <li><%= task.title %></li>
-      <% }) %> <% } %>
+      <% if (tasks) { %> <% tasks.forEach(task => { %> <%- task %> <% }) %> <% }
+      else {%>
+      <li class="task">No tasks yet</li>
+      <%}%>
     </ul>
   </div>
   <p class="remaining-todos hidden"></p>
-  <!-- TODO: perhaps we should add a quote -->
   <!-- <p class="quote"></p> -->
 
-  <!-- TODO: share link modal -->
   <div class="modal-backdrop hidden"></div>
   <div class="share-modal hidden">
     <h2 class="share-text">You can share the link with your study buddies.</h2>

@@ -6,24 +6,31 @@ const shareLink = document.querySelector(".share-link");
 const shareModal = document.querySelector(".share-modal");
 const modalBackdrop = document.querySelector(".modal-backdrop");
 let tasksInLocalstorage = JSON.parse(localStorage.getItem("tasks")) || [];
-const todoListTitle = localStorage.getItem("todoListTitle") || "";
 
-// add tasks if there already are
-if (tasksInLocalstorage.length) {
-  tasksInLocalstorage.forEach((taskLi) => {
-    taskUl.insertAdjacentHTML("afterbegin", taskLi);
+if (tasksInLocalstorage) {
+  tasksInLocalstorage.forEach((task) => {
+    taskUl.insertAdjacentHTML("afterbegin", task);
   });
-}
-
-if (todoListTitle) {
-  todoTitle.textContent = todoListTitle;
 }
 
 const addTask = function (taskText) {
   const taskLi = `<li class="task"><input type="checkbox"/><span class="task-text">${taskText}</span><i class="fa-solid fa-xmark delete-task"></i><i class="fa-solid fa-pencil edit-task"></i></li>`;
-  taskUl.insertAdjacentHTML("afterbegin", taskLi);
-  tasksInLocalstorage.push(taskLi);
-  localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
+
+  // add task to db
+  try {
+    taskUl.insertAdjacentHTML("afterbegin", taskLi);
+    tasksInLocalstorage.push(taskLi);
+    localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
+    const url = "http://localhost:6543/api/update-task-list";
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ newTaskList: tasksInLocalstorage }),
+    });
+  } catch (err) {
+    console.error(err);
+  }
+
   taskInput.value = "";
 };
 
@@ -46,25 +53,62 @@ taskUl.addEventListener("click", (e) => {
 
   //   delete task
   if (e.target.classList.contains("delete-task")) {
-    li.remove();
-    tasksInLocalstorage = [
-      ...tasksInLocalstorage.filter((task) => {
-        const spanStart = task.indexOf('<span class="task-text">');
-        const spanEnd = task.indexOf("</span>");
-        if (spanStart === -1 || spanEnd === -1) return true;
-        const taskText = task.slice(spanStart + 24, spanEnd).trim();
-        const liText = li.querySelector("span")?.textContent?.trim();
+    // delete task from db
+    try {
+      li.remove();
+      tasksInLocalstorage = [
+        ...tasksInLocalstorage.filter((task) => {
+          const spanStart = task.indexOf('<span class="task-text">');
+          const spanEnd = task.indexOf("</span>");
+          if (spanStart === -1 || spanEnd === -1) return true;
+          const taskText = task.slice(spanStart + 24, spanEnd).trim();
+          const liText = li.querySelector("span")?.textContent?.trim();
 
-        return taskText !== liText;
-      }),
-    ];
-    localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
+          return taskText !== liText;
+        }),
+      ];
+      localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
+
+      const url = "http://localhost:6543/api/update-task-list";
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newTaskList: tasksInLocalstorage }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   //   edit task
   if (e.target.classList.contains("edit-task")) {
+    if (!e.target.classList.contains("edit-task")) return;
+
+    const li = e.target.closest("li");
+    if (!li) return;
+
     const span = li.querySelector(".task-text");
+    if (!span) return;
+
     const oldText = span.textContent;
+
+    // Find index of the clicked li among all lis with the same task text
+    const lis = [...taskUl.querySelectorAll("li")];
+    let targetIndex = -1;
+    let count = 0;
+    for (let i = 0; i < lis.length; i++) {
+      const spanInLi = lis[i].querySelector("span.task-text");
+      if (!spanInLi) continue;
+      if (spanInLi.textContent.trim() === oldText) {
+        if (lis[i] === li) {
+          targetIndex = count;
+          break;
+        }
+        count++;
+      }
+    }
+    if (targetIndex === -1) targetIndex = 0;
+
     const input = document.createElement("input");
     input.type = "text";
     input.value = oldText;
@@ -79,27 +123,39 @@ taskUl.addEventListener("click", (e) => {
 
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        const newText = input.value.trim();
-        if (!newText) return; // don't allow empty task text
+        try {
+          let matchCount = -1;
+          span.textContent = input.value;
+          input.replaceWith(span);
+          tasksInLocalstorage = tasksInLocalstorage.map((task) => {
+            const spanStart = task.indexOf('<span class="task-text">');
+            const spanEnd = task.indexOf("</span>");
+            if (spanStart === -1 || spanEnd === -1) return task;
 
-        span.textContent = newText;
-        input.replaceWith(span);
+            const taskText = task.slice(spanStart + 24, spanEnd).trim();
+            if (taskText === oldText) {
+              matchCount++;
+              if (matchCount === targetIndex) {
+                return (
+                  task.slice(0, spanStart + 24) +
+                  span.textContent +
+                  task.slice(spanEnd)
+                );
+              }
+            }
+            return task;
+          });
+          localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
 
-        tasksInLocalstorage = tasksInLocalstorage.map((task) => {
-          const spanStart = task.indexOf('<span class="task-text">');
-          const spanEnd = task.indexOf("</span>");
-          if (spanStart === -1 || spanEnd === -1) return task;
-          const taskText = task.slice(spanStart + 24, spanEnd).trim();
-          if (taskText === oldText) {
-            // Replace old text with new text in the HTML string
-            return (
-              task.slice(0, spanStart + 24) + newText + task.slice(spanEnd)
-            );
-          }
-
-          return task;
-        });
-        localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
+          const url = "http://localhost:6543/api/update-task-list";
+          fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ newTaskList: tasksInLocalstorage }),
+          });
+        } catch (err) {
+          console.error(err);
+        }
       }
     });
   }
@@ -118,9 +174,18 @@ todoTitle.addEventListener("click", (e) => {
 
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      todoTitle.textContent = input.value;
-      input.replaceWith(todoTitle);
-      localStorage.setItem("todoListTitle", todoTitle.textContent);
+      try {
+        todoTitle.textContent = input.value;
+        input.replaceWith(todoTitle);
+        const url = "http://localhost:6543/api/update-title";
+        fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ newTitle: todoTitle.textContent }),
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
   });
 });
@@ -131,10 +196,6 @@ shareLink.addEventListener("click", () => {
   modalBackdrop.style.opacity = "0.5";
   shareModal.style.opacity = "1";
   shareModal.style.display = "flex";
-
-  // add all the content to db via api
-  const tasksToShare = localStorage.getItem("tasks");
-  const titleToShare = localStorage.getItem("todoListTitle");
 });
 
 modalBackdrop.addEventListener("click", (e) => {

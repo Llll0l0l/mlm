@@ -10,6 +10,7 @@ const middlewares = jsonServer.defaults();
 const { nanoid } = require("nanoid");
 const axios = require("axios");
 const session = require("express-session");
+const db = router.db;
 const cookieParser = require("cookie-parser");
 
 app.use(express.urlencoded({ extended: true }));
@@ -22,6 +23,7 @@ app.use(
     cookie: {
       secure: false,
       maxAge: 365 * 24 * 60 * 60 * 1000,
+      sameSite: "none",
     },
   })
 );
@@ -33,23 +35,22 @@ app.set("views", path.join(__dirname, "views"));
 app.get("/", async (req, res) => {
   if (!req.session.teamId) {
     req.session.teamId = nanoid();
-    console.log(req.session.teamId);
     try {
-      // await axios.post("http://localhost:6543/api/lounges/teams", {
-      //   id: req.session.teamId,
-      //   members: {
-      //     member: {
-      //       name: "John", // decide it before loading
-      //       avatar: "img.png", // decide it before loading
-      //       individualSessionTime: 0,
-      //     },
-      //   },
-      //   todoList: {
-      //     title: "Your To Do",
-      //     tasks: [],
-      //   },
-      //   totalSessionTime: 0,
-      // });
+      await axios.post("http://localhost:6543/api/lounges/teams", {
+        id: req.session.teamId,
+        members: {
+          member: {
+            name: "John", // decide it before loading
+            avatar: "img.png", // decide it before loading
+            individualSessionTime: 0,
+          },
+        },
+        todoList: {
+          title: "Your To Do",
+          tasks: [],
+        },
+        totalSessionTime: 0,
+      });
     } catch (error) {
       if (error.response) {
         console.error("Axios response error:", error.response.data);
@@ -60,22 +61,65 @@ app.get("/", async (req, res) => {
     }
   }
 
-  console.log(req.session.teamId);
-
   res.render("lounge/lounge", {
     tasks: [],
     title: "",
-    link: `http://localhost:6543/teams/${req.session.teamId || "failed"}`,
+    link: `http://localhost:6543/${req.session.teamId || "failed"}`,
   });
 });
 
-app.get("/teams/:id", (req, res) => {
+app.post("/api/update-task-list", express.json(), (req, res) => {
+  const id = req.session.teamId;
+  const { newTitle } = req.body;
+
+  if (!id || !newTaskList) {
+    return res.status(400).json({ error: "Missing team ID or task" });
+  }
+
+  const team = db.get("teams").find({ id }).value();
+
+  if (!team) {
+    return res.status(404).json({ error: "Team not found" });
+  }
+
+  db.get("teams")
+    .find({ id })
+    .assign({ todoList: { ...team.todoList, tasks: newTaskList } })
+    .write();
+  res.json({ success: true, tasks: team.todoList.tasks });
+});
+
+app.post("/api/update-title", express.json(), (req, res) => {
+  const id = req.session.teamId;
+  const { newTitle } = req.body;
+
+  if (!id || !newTitle) {
+    return res.status(400).json({ error: "Missing team ID or task" });
+  }
+
+  const team = db.get("teams").find({ id }).value();
+
+  if (!team) {
+    return res.status(404).json({ error: "Team not found" });
+  }
+
+  db.get("teams")
+    .find({ id })
+    .assign({ todoList: { ...team.todoList, title: newTitle } })
+    .write();
+  res.json({ success: true, title: team.todoList.title });
+});
+
+app.get("/:id", (req, res) => {
   const { id } = req.params;
-  const db = router.db;
   const team = db.get("teams").find({ id }).value();
 
   if (team) {
-    res.json(team);
+    res.status(200).render("lounge/lounge", {
+      tasks: team.todoList.tasks,
+      title: team.todoList.title,
+      link: `http://localhost:6543/${team.id}`,
+    });
   } else {
     res.status(404).render("err/404");
   }

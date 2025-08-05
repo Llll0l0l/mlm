@@ -31,6 +31,14 @@ app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+// helper function
+function formatSeconds(seconds) {
+  const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
 // home route
 app.get("/", async (req, res) => {
   if (!req.session.teamId) {
@@ -60,17 +68,19 @@ app.get("/", async (req, res) => {
       res.status(500).send("Failed to create team");
     }
   }
+  const team = db.get("teams").find({ id: req.session.teamId }).value();
 
   res.render("lounge/lounge", {
-    tasks: [],
-    title: "",
-    link: `http://localhost:6543/${req.session.teamId || "failed"}`,
+    tasks: team.todoList.tasks,
+    title: team.todoList.title,
+    totalSessionTime: formatSeconds(team.totalSessionTime),
+    link: `${process.env.NGROK_LINK}${req.session.teamId || "failed"}`,
   });
 });
 
 app.post("/api/update-task-list", express.json(), (req, res) => {
   const id = req.session.teamId;
-  const { newTitle } = req.body;
+  const { newTaskList } = req.body;
 
   if (!id || !newTaskList) {
     return res.status(400).json({ error: "Missing team ID or task" });
@@ -118,7 +128,8 @@ app.get("/:id", (req, res) => {
     res.status(200).render("lounge/lounge", {
       tasks: team.todoList.tasks,
       title: team.todoList.title,
-      link: `http://localhost:6543/${team.id}`,
+      totalSessionTime: formatSeconds(team.totalSessionTime),
+      link: `${process.env.NGROK_LINK}${team.id}`,
     });
   } else {
     res.status(404).render("err/404");
@@ -127,10 +138,24 @@ app.get("/:id", (req, res) => {
 
 // add time
 app.post("/api/add-time", express.json(), (req, res) => {
-  const { seconds } = req.body;
+  console.log("HIIIII");
+  const { seconds, id } = req.body;
   console.log("Time received:", seconds, "seconds");
-  // Save to DB, session, etc.
-  res.sendStatus(200);
+
+  const team = db
+    .get("teams")
+    .find({ id: id || req.session.teamId })
+    .value();
+
+  if (!team) {
+    return res.status(404).json({ error: "Team not found" });
+  }
+  console.log(team);
+
+  console.log(team.totalSessionTime);
+  team.totalSessionTime += seconds;
+
+  res.status(200).json({ seconds });
 });
 
 app.use("/api/lounges", middlewares, router); // mount under /api

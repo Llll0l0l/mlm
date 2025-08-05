@@ -118,7 +118,10 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ seconds: Math.floor(elapsedTime / 1000) }),
+            body: JSON.stringify({
+              seconds: Math.floor(elapsedTime / 1000),
+              id: "",
+            }),
           });
           elapsedTime = 0;
         } catch (err) {

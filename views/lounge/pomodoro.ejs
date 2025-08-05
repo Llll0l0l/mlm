@@ -98,6 +98,7 @@
 
 <div class="section pomodoro" data-section="pomodoro">
   <div id="pomodoro">
+    <input type="hidden" name="hidden-link" value="<%=link%>" />
     <p class="timer-text">25:00</p>
     <div
       class="increase-decrease-btns"
@@ -119,6 +120,10 @@
     const stopBtn = document.querySelector(".stop");
     const resetBtn = document.querySelector(".reset");
     const timerDisplay = document.querySelector(".timer-text");
+
+    const link = document.querySelector("input[name=hidden-link]").value;
+    let id;
+    if (link.split("/").length > 4) id = link.split("/").at(-1);
 
     let DEFAULT_MINUTES = 25;
 
@@ -166,9 +171,7 @@
           localStorage.setItem("pomodoroTimeLeft", timeLeft);
           updateDisplay();
         } else {
-          stopTimer();
-          sendSessionTime();
-
+          resetTimer();
           alert("Pomodoro complete!");
         }
       }, 1000);
@@ -177,19 +180,10 @@
     function stopTimer() {
       clearInterval(intervalId);
       intervalId = null;
-      sendSessionTime();
-    }
-
-    function resetTimer() {
-      stopTimer();
-      sendSessionTime();
-      timeLeft = DEFAULT_MINUTES * 60;
-      totalSessionTime = 0;
-      localStorage.removeItem("pomodoroTimeLeft");
-      updateDisplay();
     }
 
     async function sendSessionTime() {
+      console.log("sendSessionTime called");
       if (totalSessionTime > 0) {
         try {
           await fetch("/api/add-time", {
@@ -197,18 +191,40 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ seconds: totalSessionTime }),
+            body: JSON.stringify({ seconds: totalSessionTime, id }),
           });
-          totalSessionTime = 0;
-        } catch (err) {
-          console.error("Failed to send session time:", err);
+        } catch {
+          (err) => {
+            console.error("Failed to send session time:", err);
+            throw err; // So caller can handle it
+          };
         }
+      } else {
+        console.log("No session time to send");
+        return Promise.resolve(null); // Always return a promise
+      }
+    }
+
+    async function resetTimer() {
+      stopTimer();
+      console.log("resetTimer: sending session time...");
+
+      try {
+        const data = await sendSessionTime();
+        console.log("Session time sent:", data);
+
+        timeLeft = DEFAULT_MINUTES * 60;
+        totalSessionTime = 0;
+        localStorage.removeItem("pomodoroTimeLeft");
+        updateDisplay();
+      } catch (err) {
+        console.error("resetTimer error:", err);
       }
     }
 
     startBtn.addEventListener("click", startTimer);
     stopBtn.addEventListener("click", stopTimer);
-    resetBtn.addEventListener("click", resetTimer);
+    resetBtn.addEventListener("click", async () => await resetTimer());
 
     updateDisplay();
   </script>

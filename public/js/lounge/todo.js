@@ -7,12 +7,6 @@ const shareModal = document.querySelector(".share-modal");
 const modalBackdrop = document.querySelector(".modal-backdrop");
 let tasksInLocalstorage = JSON.parse(localStorage.getItem("tasks")) || [];
 
-if (tasksInLocalstorage) {
-  tasksInLocalstorage.forEach((task) => {
-    taskUl.insertAdjacentHTML("afterbegin", task);
-  });
-}
-
 const addTask = function (taskText) {
   const taskLi = `<li class="task"><input type="checkbox"/><span class="task-text">${taskText}</span><i class="fa-solid fa-xmark delete-task"></i><i class="fa-solid fa-pencil edit-task"></i></li>`;
 
@@ -21,7 +15,7 @@ const addTask = function (taskText) {
     taskUl.insertAdjacentHTML("afterbegin", taskLi);
     tasksInLocalstorage.push(taskLi);
     localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
-    const url = "http://localhost:6543/api/update-task-list";
+    const url = "/api/update-task-list";
     fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -69,7 +63,7 @@ taskUl.addEventListener("click", (e) => {
       ];
       localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
 
-      const url = "http://localhost:6543/api/update-task-list";
+      const url = "/api/update-task-list";
       fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -147,7 +141,7 @@ taskUl.addEventListener("click", (e) => {
           });
           localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
 
-          const url = "http://localhost:6543/api/update-task-list";
+          const url = "/api/update-task-list";
           fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -177,7 +171,7 @@ todoTitle.addEventListener("click", (e) => {
       try {
         todoTitle.textContent = input.value;
         input.replaceWith(todoTitle);
-        const url = "http://localhost:6543/api/update-title";
+        const url = "/api/update-title";
         fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -1,8 +1,8 @@
 * {
   scroll-behavior: smooth;
   box-sizing: border-box;
-  /* TODO: solve the font issue */
   /* font-family: "Mona Sans" "Helvetica Neue" Helvetica Arial sans-serif; */
+  font-family: "Arial", sans-serif;
 }
 
 body {

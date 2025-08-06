@@ -20,6 +20,7 @@
   "homepage": "https://github.com/Llll0l0l/mlm#readme",
   "dependencies": {
     "axios": "^1.11.0",
+    "cheerio": "^1.1.2",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.1",
     "ejs": "^3.1.10",

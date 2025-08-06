@@ -51,6 +51,8 @@
     display: flex;
     gap: 20px;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .pom-btns button {
@@ -73,7 +75,7 @@
   }
 
   /* Responsive: smaller screens */
-  @media (max-width: 400px) {
+  @media (max-width: 556px) {
     #pomodoro {
       width: 90vw;
       height: auto;
@@ -110,15 +112,15 @@
     </div>
 
     <div class="pom-btns">
-      <button class="start" aria-label="Start timer">Start</button>
-      <button class="stop" aria-label="Stop timer">Stop</button>
-      <button class="reset" aria-label="Reset timer">Reset</button>
+      <button class="start-pomodoro" aria-label="Start timer">Start</button>
+      <button class="stop-pomodoro" aria-label="Stop timer">Stop</button>
+      <button class="reset-pomodoro" aria-label="Reset timer">Reset</button>
     </div>
   </div>
   <script>
-    const startBtn = document.querySelector(".start");
-    const stopBtn = document.querySelector(".stop");
-    const resetBtn = document.querySelector(".reset");
+    const startPomodoroBtn = document.querySelector(".start-pomodoro");
+    const stopPomodoroBtn = document.querySelector(".stop-pomodoro");
+    const resetPomodoroBtn = document.querySelector(".reset-pomodoro");
     const timerDisplay = document.querySelector(".timer-text");
 
     const link = document.querySelector("input[name=hidden-link]").value;
@@ -186,22 +188,29 @@
       console.log("sendSessionTime called");
       if (totalSessionTime > 0) {
         try {
-          await fetch("/api/add-time", {
+          const res = await fetch("/api/add-time", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ seconds: totalSessionTime, id }),
           });
-        } catch {
-          (err) => {
-            console.error("Failed to send session time:", err);
-            throw err; // So caller can handle it
-          };
+
+          // Optionally surface errors:
+          if (!res.ok) {
+            const text = await res.text().catch(() => "");
+            throw new Error(`add-time failed: ${res.status} ${text}`);
+          }
+
+          // Return something meaningful:
+          // If your endpoint returns JSON, do this:
+          const data = await res.json().catch(() => null);
+          return data; // <-- so caller sees something other than undefined
+        } catch (err) {
+          console.error("Failed to send session time:", err);
+          throw err;
         }
       } else {
         console.log("No session time to send");
-        return Promise.resolve(null); // Always return a promise
+        return null;
       }
     }
 
@@ -222,9 +231,9 @@
       }
     }
 
-    startBtn.addEventListener("click", startTimer);
-    stopBtn.addEventListener("click", stopTimer);
-    resetBtn.addEventListener("click", async () => await resetTimer());
+    startPomodoroBtn.addEventListener("click", startTimer);
+    stopPomodoroBtn.addEventListener("click", stopTimer);
+    resetPomodoroBtn.addEventListener("click", async () => await resetTimer());
 
     updateDisplay();
   </script>

@@ -7,11 +7,13 @@
 
   .todo h3 {
     font-size: 2rem;
+    margin: 2rem 0;
   }
 
   .todo-list {
+    width: 600px;
+    margin-top: 3rem;
     display: flex;
-    margin-left: -4rem;
     flex-direction: column;
     text-align: left;
     padding: 2rem;
@@ -44,7 +46,6 @@
     border-bottom: 1px black solid;
     padding: 0 1rem;
     font-size: 1.75rem;
-    margin-right: 2rem;
   }
 
   .fa-xmark {
@@ -53,32 +54,50 @@
 
   .task {
     font-size: 1.75rem;
-    width: 400px;
-    height: 4rem;
+    max-width: 100%;
     padding: 1rem;
     border: 1px black solid;
     border-radius: 5px;
     margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
   .task span {
-    max-width: 200px;
-    display: inline-flex;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    max-width: 350px;
+    display: inline-block;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    white-space: normal;
   }
-  .task input {
+  .checkbox {
     width: 1.4rem;
     height: 1.4rem;
     margin-right: 1rem;
     border: 1px black solid;
   }
 
+  .task-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   .flex {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
+  }
+
+  .checkbox-task {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   button:hover,
@@ -157,6 +176,41 @@
     background-color: #0056b3;
   }
 
+  .checked {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .todo {
+      margin-top: 8rem;
+    }
+    .todo-list {
+      max-width: 70%;
+    }
+
+    h3 {
+      color: white;
+      white-space: normal;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      max-width: 90vw;
+    }
+    .todo input {
+      color: rgb(250, 197, 99);
+    }
+
+    #new-task {
+      padding: 0;
+      margin-right: 0;
+      font-size: 1.2rem;
+    }
+
+    .fa-plus {
+      font-size: 1rem;
+    }
+  }
+
   @media (max-width: 500px) {
     .share-modal .link-copy {
       flex-direction: column;
@@ -170,10 +224,7 @@
 
 <div class="section todo" data-section="todo">
   <h3>
-    <% if (title) { %>
     <span class="todo-title"><%= title %></span>
-    <% } else {%>
-    <span class="todo-title">Your To Do</span> <%}%>
     <i class="fa-solid fa-link share-link"></i>
   </h3>
   <div class="flex">
@@ -187,9 +238,9 @@
       <button class="add-task-btn"><i class="fa-solid fa-plus"></i></button>
     </div>
     <ul class="todo-list">
-      <% if (tasks) { %> <% tasks.forEach(task => { %> <%- task %> <% }) %> <% }
-      else {%>
-      <li class="task">No tasks yet</li>
+      <% if (tasks.length > 0) { %> <% tasks.forEach(task => { %> <%- task %> <%
+      }) %> <% } else {%>
+      <li class="task no-tasks">No tasks yet.</li>
       <%}%>
     </ul>
   </div>

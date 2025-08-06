@@ -99,6 +99,12 @@
     transform: rotate(-5deg) scale(1.05);
     border-color: #ffa69e;
   }
+
+  @media (max-width: 768px) {
+    .home {
+      margin-top: 8rem;
+    }
+  }
 </style>
 
 <div class="section home active" data-section="home">
@@ -110,9 +116,9 @@
 
     <div class="todo-preview">
       <ul class="todo-list-preview">
-        <li>Create a GitHub repository and add team members</li>
-        <li>Finish wireframes and upload them</li>
-        <li>Add collaborators to the repo</li>
+        <% for( let i = 0; i < 3; i++ ) { %> <% if (taskTexts[i]) { %>
+        <li><%=taskTexts[i]%></li>
+        <% } %> <% } %>
       </ul>
     </div>
   </div>

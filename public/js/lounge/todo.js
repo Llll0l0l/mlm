@@ -8,10 +8,13 @@ const modalBackdrop = document.querySelector(".modal-backdrop");
 let tasksInLocalstorage = JSON.parse(localStorage.getItem("tasks")) || [];
 
 const addTask = function (taskText) {
-  const taskLi = `<li class="task"><input type="checkbox"/><span class="task-text">${taskText}</span><i class="fa-solid fa-xmark delete-task"></i><i class="fa-solid fa-pencil edit-task"></i></li>`;
+  const taskLi = `<li class="task"><div class="checkbox-task"><input type="checkbox" class="checkbox"/><span class="task-text">${taskText}</span></div><div class="edit-del-btns"><i class="fa-solid fa-xmark delete-task"></i><i class="fa-solid fa-pencil edit-task"></i></div></li>`;
 
   // add task to db
   try {
+    if (taskUl.querySelector("li")?.classList.contains("no-tasks")) {
+      taskUl.innerHTML = "";
+    }
     taskUl.insertAdjacentHTML("afterbegin", taskLi);
     tasksInLocalstorage.push(taskLi);
     localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
@@ -50,6 +53,12 @@ taskUl.addEventListener("click", (e) => {
     // delete task from db
     try {
       li.remove();
+      if (taskUl.innerHTML.trim() === "") {
+        taskUl.insertAdjacentHTML(
+          "afterbegin",
+          `<li class="task no-tasks">No tasks yet.</li>`
+        );
+      }
       tasksInLocalstorage = [
         ...tasksInLocalstorage.filter((task) => {
           const spanStart = task.indexOf('<span class="task-text">');
@@ -108,7 +117,7 @@ taskUl.addEventListener("click", (e) => {
     input.value = oldText;
     input.className = "task-edit-input";
     input.style.fontSize = "1.5rem";
-    input.style.width = "200px";
+    input.style.width = "350px";
     input.style.border = "none";
     input.style.outline = "none";
     input.style.background = "none";
@@ -152,6 +161,30 @@ taskUl.addEventListener("click", (e) => {
         }
       }
     });
+  }
+
+  // task checked
+  if (e.target.classList.contains("checkbox")) {
+    li.querySelector(".task-text").classList.toggle("checked");
+    li.querySelector(".checkbox").setAttribute("checked", "");
+
+    // update in db
+    try {
+      const allTasks = taskUl.innerHTML.trim().split("\n");
+      tasksInLocalstorage = allTasks.map((task) => {
+        return task.trim();
+      });
+      localStorage.setItem("tasks", JSON.stringify(tasksInLocalstorage));
+
+      const url = "/api/update-task-list";
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newTaskList: tasksInLocalstorage }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
 });
 

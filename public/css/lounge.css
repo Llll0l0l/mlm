@@ -1,29 +1,28 @@
 * {
   scroll-behavior: smooth;
   box-sizing: border-box;
-  /* font-family: "Mona Sans" "Helvetica Neue" Helvetica Arial sans-serif; */
   font-family: "Arial", sans-serif;
 }
 
 body {
   margin: 0;
   background-image: url("../img/bg/bg.jpg");
-  background-size: cover;
   background-repeat: no-repeat;
+  background-size: cover;
 }
 
 nav {
   display: flex;
-  justify-content: center;
   margin-top: 0;
 }
 
 nav ul {
   display: flex;
   justify-content: space-between;
-  width: 50%;
   align-items: center;
   margin-top: 2.5rem;
+  gap: 15px;
+  padding: 1rem;
 }
 
 li {
@@ -50,6 +49,10 @@ li {
   color: black;
 }
 
+header {
+  display: flex;
+  justify-content: space-between;
+}
 .section {
   margin: 5rem 15rem;
   display: none;
@@ -92,4 +95,152 @@ li {
 /* Optional cursor change */
 .logo:hover {
   cursor: pointer;
+}
+
+.fa-gear {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  font-size: 3rem; /* slightly smaller for balance */
+  color: aliceblue;
+  background: rgba(0, 0, 0, 0.3); /* subtle circle background */
+
+  padding: 0.6rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.fa-gear:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #77e6a5; /* nice cyan hover */
+  transform: rotate(90deg) scale(1.1);
+}
+
+@media (max-width: 968px) {
+  .logo-wrapper {
+    display: none;
+  }
+  header {
+    justify-content: center;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  nav {
+    justify-content: space-between;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+  }
+
+  /* Hide menu items by default on mobile */
+  nav ul {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none; /* Prevent clicks when hidden */
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    flex-direction: column;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    z-index: 2;
+  }
+
+  .tab:last-of-type {
+    border-bottom-left-radius: 2rem;
+    border-bottom-right-radius: 2rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15),
+      inset 0 -4px 8px rgba(255, 255, 255, 0.1); /* subtle inner glow */
+  }
+
+  nav::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    width: 60%;
+    height: 20px;
+    background: radial-gradient(
+      circle at center,
+      rgba(0, 0, 0, 0.08),
+      transparent 70%
+    );
+    border-radius: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .tab {
+    width: 100%;
+    background: rgb(141, 80, 80);
+    border-radius: 0;
+  }
+
+  .tab:hover {
+    background-color: antiquewhite;
+  }
+
+  nav ul.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    gap: 0;
+  }
+
+  .tab-active {
+    background-color: antiquewhite;
+  }
+  /* Burger icon */
+  .menu-toggle {
+    display: block;
+    cursor: pointer;
+    color: white;
+    font-size: 1.8rem;
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    font-size: 3rem;
+    z-index: 3;
+  }
+
+  .section {
+    margin: 0;
+    padding: 1rem;
+    height: 100vh;
+  }
+  .fa-gear {
+    position: fixed;
+    bottom: 1rem;
+    font-size: 2rem;
+  }
+
+  /* When the nav contains a hovered #home, style .menu-toggle */
+  nav:has(#home:hover) .menu-toggle {
+    color: #4e4e4e;
+  }
+}
+
+@media (min-width: 769px) {
+  .menu-toggle {
+    display: none;
+  }
+}
+
+@media (max-width: 1080px) {
+  body {
+    background-size: auto;
+  }
+}
+
+@media (max-width: 320px) {
+  .section {
+    padding: 0.5rem;
+  }
 }

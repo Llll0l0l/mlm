@@ -3,7 +3,7 @@
     display: flex;
     justify-content: space-around;
     flex-direction: column;
-    width: 620px;
+    max-width: 620px;
     height: 320px;
     padding: 2rem;
     border-radius: 20px;
@@ -28,6 +28,12 @@
     margin-bottom: 1rem;
     letter-spacing: 0.05em;
   }
+  .stopwatch-controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
 
   .stopwatch-controls button {
     background: rgba(255 255 255 / 0.25);
@@ -45,6 +51,18 @@
 
   .stopwatch-controls button:hover {
     background: rgba(255 255 255 / 0.45);
+  }
+
+  @media (max-width: 414px) {
+    #stopwatch-time {
+      font-size: 4rem;
+    }
+  }
+
+  @media (max-width: 350px) {
+    #stopwatch-time {
+      font-size: 3.5rem;
+    }
   }
 </style>
 
@@ -102,7 +120,7 @@
 
     function reset() {
       clearInterval(timerInterval);
-      sendSessionTime();
+      sendStopwatchSessionTime();
       elapsedTime = 0;
       display.textContent = "00:00:00";
       startStopwatchBtn.disabled = false;
@@ -110,7 +128,8 @@
       resetStopwatchBtn.disabled = true;
     }
 
-    async function sendSessionTime() {
+    async function sendStopwatchSessionTime() {
+      console.log("Stopwatch");
       if (elapsedTime > 0) {
         try {
           await fetch("/api/add-time", {

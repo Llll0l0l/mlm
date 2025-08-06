@@ -12,6 +12,7 @@ const axios = require("axios");
 const session = require("express-session");
 const db = router.db;
 const cookieParser = require("cookie-parser");
+const cheerio = require("cheerio");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -69,11 +70,16 @@ app.get("/", async (req, res) => {
     }
   }
   const team = db.get("teams").find({ id: req.session.teamId }).value();
+  const taskTexts = team.todoList.tasks.map((html) => {
+    const $ = cheerio.load(html);
+    return $(".task-text").text();
+  });
 
   res.render("lounge/lounge", {
     tasks: team.todoList.tasks,
     title: team.todoList.title,
     totalSessionTime: formatSeconds(team.totalSessionTime),
+    taskTexts,
     link: `${process.env.NGROK_LINK}${req.session.teamId || "failed"}`,
   });
 });
@@ -124,10 +130,16 @@ app.get("/:id", (req, res) => {
   const { id } = req.params;
   const team = db.get("teams").find({ id }).value();
 
+  const taskTexts = team.todoList.tasks.map((html) => {
+    const $ = cheerio.load(html);
+    return $(".task-text").text();
+  });
+
   if (team) {
     res.status(200).render("lounge/lounge", {
       tasks: team.todoList.tasks,
       title: team.todoList.title,
+      taskTexts,
       totalSessionTime: formatSeconds(team.totalSessionTime),
       link: `${process.env.NGROK_LINK}${team.id}`,
     });
@@ -138,7 +150,6 @@ app.get("/:id", (req, res) => {
 
 // add time
 app.post("/api/add-time", express.json(), (req, res) => {
-  console.log("HIIIII");
   const { seconds, id } = req.body;
   console.log("Time received:", seconds, "seconds");
 
@@ -150,9 +161,7 @@ app.post("/api/add-time", express.json(), (req, res) => {
   if (!team) {
     return res.status(404).json({ error: "Team not found" });
   }
-  console.log(team);
 
-  console.log(team.totalSessionTime);
   team.totalSessionTime += seconds;
 
   res.status(200).json({ seconds });
